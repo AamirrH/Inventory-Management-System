@@ -17,6 +17,12 @@ public class OrderController {
 
     private final OrderService orderService;
 
+    @GetMapping("/testOrders")
+    public String testOrders() {
+        return "testOrders";
+    }
+
+
     @GetMapping
     public ResponseEntity<List<OrderRequestDTO>> getAllOrders(){
         return ResponseEntity.ok(orderService.getAllOrders());
