@@ -18,3 +18,5 @@ build/
 ### Local service configs with secrets ###
 Inventory-Service/src/main/resources/application.properties
 Order-Service/src/main/resources/application.properties
+Discovery-Service/src/main/resources/application.properties
+API-Gateway/src/main/resources/application.yml
