@@ -1,6 +1,7 @@
 package com.code.prodapp.inventoryservice.service;
 
 
+import com.code.prodapp.inventoryservice.DTOs.AddStockRequestDTO;
 import com.code.prodapp.inventoryservice.DTOs.ProductDTO;
 import com.code.prodapp.inventoryservice.DTOs.ReduceStockRequestDTO;
 import com.code.prodapp.inventoryservice.entities.Product;
@@ -52,6 +53,20 @@ public class ProductService {
             // Save the product with the new stock
             productRepository.save(product);
         });
+        return;
+    }
+
+    @Transactional
+    public void addStock(List<AddStockRequestDTO> addStockRequestDTOS){
+        addStockRequestDTOS.forEach(item -> {
+            Product product = productRepository.findById(item.getProductId())
+                    .orElseThrow(() -> new RuntimeException("Product Not Found"));
+            // Unconditional because when cancelling an order we just have to return the stock
+            product.setStock(product.getStock()+item.getQuantity());
+            // Save the product
+            productRepository.save(product);
+        });
+        return;
     }
 
 

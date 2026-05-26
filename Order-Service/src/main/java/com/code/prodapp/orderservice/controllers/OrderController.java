@@ -38,6 +38,14 @@ public class OrderController {
         return ResponseEntity.ok(orderService.createOrder(orderRequestDTO));
     }
 
+    @PutMapping("/cancelOrder/{id}")
+    // TODO : Replace the id with users orders
+    public ResponseEntity<String> cancelOrder(@PathVariable(name = "id") Long orderId){
+        orderService.cancelOrder(orderId);
+        return ResponseEntity.ok("Order cancelled");
+    }
+
+
 
 
 

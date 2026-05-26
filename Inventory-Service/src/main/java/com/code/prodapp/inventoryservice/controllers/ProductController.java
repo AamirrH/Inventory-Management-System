@@ -1,6 +1,7 @@
 package com.code.prodapp.inventoryservice.controllers;
 
 
+import com.code.prodapp.inventoryservice.DTOs.AddStockRequestDTO;
 import com.code.prodapp.inventoryservice.DTOs.ProductDTO;
 import com.code.prodapp.inventoryservice.DTOs.ReduceStockRequestDTO;
 import com.code.prodapp.inventoryservice.clients.OrdersFeignClient;
@@ -50,9 +51,14 @@ public class ProductController {
         return ResponseEntity.ok(productService.getProductById(id));
     }
 
-    @PostMapping("/reduceStock")
+    @PutMapping("/reduceStock")
     public void reduceStock(@RequestBody List<ReduceStockRequestDTO> itemsToReduce){
         productService.reduceStock(itemsToReduce);
+    }
+
+    @PutMapping("/addStock")
+    public void addStock(@RequestBody List<AddStockRequestDTO> itemsToAdd){
+        productService.addStock(itemsToAdd);
     }
 
 

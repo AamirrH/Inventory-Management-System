@@ -1,5 +1,6 @@
 package com.code.prodapp.orderservice.service;
 
+import com.code.prodapp.orderservice.DTOs.AddStockRequestDTO;
 import com.code.prodapp.orderservice.DTOs.ItemRequestDTO;
 import com.code.prodapp.orderservice.DTOs.OrderRequestDTO;
 import com.code.prodapp.orderservice.DTOs.ReduceStockRequestDTO;
@@ -7,6 +8,8 @@ import com.code.prodapp.orderservice.clients.InventoryClient;
 import com.code.prodapp.orderservice.entities.Item;
 import com.code.prodapp.orderservice.entities.Orders;
 import com.code.prodapp.orderservice.entities.enums.OrderStatus;
+import com.code.prodapp.orderservice.exceptions.OrderNotFoundException;
+import com.code.prodapp.orderservice.repository.ItemRepository;
 import com.code.prodapp.orderservice.repository.OrderRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -15,6 +18,7 @@ import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -26,6 +30,7 @@ public class OrderService {
     private final OrderRepository orderRepository;
     private final ModelMapper modelMapper;
     private final InventoryClient inventoryClient;
+    private final ItemRepository itemRepository;
 
     public List<OrderRequestDTO> getAllOrders(){
         log.info("Getting all products");
@@ -75,7 +80,26 @@ public class OrderService {
                 .map(item -> new ItemRequestDTO(item.getId(), item.getProductId(), item.getQuantity()))
                 .toList();
         return new OrderRequestDTO(savedOrder.getId(), savedItems, BigDecimal.valueOf(savedOrder.getPrice()));
-
-
     }
+
+    public void cancelOrder(Long orderId){
+        log.info("Canceling Order {}", orderId);
+        // Find All Items corresponding to that particular orderId
+        Orders order = orderRepository.findById(orderId)
+                .orElseThrow(() -> new OrderNotFoundException("Order Not Found"));
+        List<Item> orderedItems = itemRepository.findAllByOrdersId(orderId);
+        List<AddStockRequestDTO> itemsToAdd = orderedItems
+                .stream()
+                .map(item -> new AddStockRequestDTO(item.getProductId(),item.getQuantity()))
+                .toList();
+        // Add Stock using Inventory Client
+        inventoryClient.addStock(itemsToAdd);
+        // Mark the Order as CANCELLED, saving it keeps a record
+        order.setOrderStatus(OrderStatus.CANCELLED);
+        orderRepository.save(order);
+        return;
+    }
+
+
+
 }
