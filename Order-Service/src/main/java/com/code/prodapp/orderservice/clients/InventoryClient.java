@@ -15,4 +15,5 @@ public interface InventoryClient {
     void reduceStock(@RequestBody List<ReduceStockRequestDTO> items);
 
 
+
 }
